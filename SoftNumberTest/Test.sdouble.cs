@@ -1,4 +1,4 @@
-﻿using SoftNumber;
+﻿using SoftFloat;
 using System;
 using System.Diagnostics;
 
@@ -92,7 +92,7 @@ namespace SoftNumberTest
                 return;
             }
 
-            double allowedError = Math.Max(1e-12 * Math.Pow(2.0, Math.Log2(Math.Abs(expected) + 1.0)), 1e-12);
+            double allowedError = Math.Max(1e-12 * Math.Pow(2.0d, Math.Log2(Math.Abs(expected) + 1.0d)), 1e-12);
             double difference = Math.Abs((double)result - expected);
             bool isOk = difference < allowedError;
             Debug.Assert(isOk);
@@ -309,18 +309,19 @@ namespace SoftNumberTest
         {
             const BinaryOperationType op = BinaryOperationType.Addition;
 
-            TestBinaryOperationDoubleExact(0.0, 0.0, 0.0, op);
-            TestBinaryOperationDoubleExact(1.0, 0.0, 1.0, op);
-            TestBinaryOperationDoubleExact(0.0, 1.0, 1.0, op);
+            TestBinaryOperationDoubleExact(0.0d, 0.0d, 0.0d, op);
+            TestBinaryOperationDoubleExact(1.0d, 0.0d, 1.0d, op);
+            TestBinaryOperationDoubleExact(0.0d, 1.0d, 1.0d, op);
 
-            TestBinaryOperationDoubleExact(-0.0, 0.0, 0.0, op);
-            TestBinaryOperationDoubleExact(-0.0, 0.0, -0.0, op);
-            TestBinaryOperationDoubleExact(0.0, 0.0, -0.0, op);
+            TestBinaryOperationDoubleExact(-0.0d, 0.0d, 0.0d, op);
+            TestBinaryOperationDoubleExact(-0.0d, 0.0, -0.0d, op);
+            TestBinaryOperationDoubleExact(0.0d, 0.0d, -0.0d, op);
 
-            TestBinaryOperationDoubleExact(1.0, -1.0, 0.0, op);
-            TestBinaryOperationDoubleExact(-1.0, -1.0, -2.0, op);
+            TestBinaryOperationDoubleExact(1.0d, -1.0d, 0.0d, op);
+            TestBinaryOperationDoubleExact(-1.0d, -1.0d, -2.0d, op);
 
-            TestBinaryOperationDoubleApproximate(123.456, 456.789, 580.245, op);
+            TestBinaryOperationDoubleApproximate(123.456d, 456.789d, 580.245d, op);
+            TestBinaryOperationDoubleApproximate(3.4630664266983525E-11, 5.5345556458565979E-11, 8.9976220725549504E-11, op);
 
             TestBinaryOperationDoubleExact(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity, op);
             TestBinaryOperationDoubleExact(double.PositiveInfinity, double.NegativeInfinity, double.NaN, op);

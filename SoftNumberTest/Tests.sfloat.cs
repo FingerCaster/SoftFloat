@@ -1,4 +1,4 @@
-using SoftNumber;
+using SoftFloat;
 using System;
 using System.Diagnostics;
 
@@ -358,6 +358,7 @@ namespace SoftNumberTest
             TestBinaryOperationFloatExact(-1.0f, -1.0f, -2.0f, op);
 
             TestBinaryOperationFloatApproximate(123.456f, 456.789f, 580.245f, op);
+            TestBinaryOperationFloatApproximate(3.4630664266983525E-11f, 5.5345556458565979E-11f, 8.9976220725549504E-11f, op);
 
             TestBinaryOperationFloatExact(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity, op);
             TestBinaryOperationFloatExact(float.PositiveInfinity, float.NegativeInfinity, float.NaN, op);

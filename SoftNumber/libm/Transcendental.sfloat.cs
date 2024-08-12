@@ -1,5 +1,5 @@
 ﻿
-namespace SoftNumber
+namespace SoftFloat
 {
     public static partial class libm_sflot
     {

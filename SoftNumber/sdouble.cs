@@ -25,7 +25,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace SoftNumber
+namespace SoftFloat
 {
     // Internal representation is identical to IEEE binary64 floating point numbers
     [DebuggerDisplay("{ToStringInv()}")]
@@ -72,7 +72,7 @@ namespace SoftNumber
         }
 
         private short Exponent => (short)(RawExponent - ExponentBias);
-        private ushort RawExponent => (ushort)(rawValue << 1 >> 1 >> MantissaBits);
+        private ushort RawExponent => (ushort)(rawValue >> MantissaBits & 0x7FF);
 
         private const ulong SignMask = 0x8000000000000000;
         private const int MantissaBits = 52;
@@ -111,7 +111,7 @@ namespace SoftNumber
         /// <returns></returns>
         public static sdouble FromParts(bool sign, ulong exponent, ulong mantissa)
         {
-            return FromRaw((sign ? SignMask : 0) | ((exponent & 0x7ffL) << MantissaBits) | (mantissa & ((1L << MantissaBits) - 1L)));
+            return FromRaw((sign ? SignMask : 0UL) | ((exponent & 0x7ffUL) << MantissaBits) | (mantissa & ((1UL << MantissaBits) - 1L)));
         }
 
         /// <summary>
@@ -163,15 +163,21 @@ namespace SoftNumber
             if (value == long.MinValue)
             {
                 // special case
-                return FromRaw(0xC1E0000000000000);
+                return FromRaw(0xcf00000000000000);
             }
 
-            bool negative = value < 0;
+            bool negative = value < 0L;
             long u = Math.Abs(value);
 
             int shifts;
 
-            int lzcnt = clz(u);
+            int lzcnt = 0;
+            long tu = u;
+            while ((tu & (1L << 63)) == 0L) {
+                tu = (tu << 1);
+                lzcnt++;
+            }
+            
             if (lzcnt < 11)
             {
                 int count = 11 - lzcnt;
@@ -189,36 +195,8 @@ namespace SoftNumber
             return FromParts(negative, exponent, (ulong)u);
         }
 
-        private static readonly int[] debruijn64 = new int[64]
-        {
-            63,  0, 58,  1, 59, 47, 53,  2, 60, 39, 48, 27, 54, 33, 42,  3,
-            61, 51, 37, 40, 49, 18, 28, 20, 55, 30, 34, 11, 43, 14, 22,  4,
-            62, 57, 46, 52, 38, 26, 32, 41, 50, 36, 17, 19, 29, 10, 13, 21,
-            56, 45, 25, 31, 35, 16,  9, 12, 44, 24, 15,  8, 23,  7,  6,  5
-        };
-
-        /// <summary>
-        /// Returns the leading zero count of the given 64-bit integer
-        /// </summary>
-        private static int clz(long x)
-        {
-            x |= x >> 1;
-            x |= x >> 2;
-            x |= x >> 4;
-            x |= x >> 8;
-            x |= x >> 16;
-            x |= x >> 32;
-
-            return debruijn64[((ulong)x * 0x03f79d71b4cb0a89ul) >> 58];
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static sdouble operator -(sdouble d) => new sdouble(d.rawValue ^ 0x8000000000000000);
-
-        private static readonly int[] normalizeAmounts = new int[]
-        {
-            0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 8, 8, 8, 0, 8, 8, 16, 16, 16, 16, 16, 24, 24, 24, 24, 24, 24
-        };
 
         private static sdouble InternalAdd(sdouble d1, sdouble d2)
         {
@@ -265,19 +243,22 @@ namespace SoftNumber
                 }
 
                 long man = (man1 << 9) + ((man2 << 9) >> deltaExp);
-                long absMan = Math.Abs(man);
+                ulong absMan = (ulong)Math.Abs(man);
                 if (absMan == 0)
                 {
                     return Zero;
                 }
-
+                
+                ulong b = absMan >> 52;
                 int rawExp = rawExp1 - 9;
+                while (b == 0)
+                {
+                    rawExp -= 11;
+                    absMan <<= 11;
+                    b = absMan >> 52;
+                }
 
-                int amount = normalizeAmounts[clz(absMan)];
-                rawExp -= amount;
-                absMan <<= amount;
-
-                int msbIndex = BitScanReverse8(absMan >> MantissaBits);
+                int msbIndex = BitScanReverse11(b);
                 rawExp += msbIndex;
                 absMan >>= msbIndex;
                 if ((ulong)(rawExp - 1) < 2046)
@@ -351,9 +332,12 @@ namespace SoftNumber
                     }
                 }
 
-                int shift = clz(rawMan1 & 0x00ffffff) - 8;
-                rawMan1 <<= shift;
-                rawExp1 = 1 - shift;
+                rawExp1 = 1;
+                while ((rawMan1 & 0x01000000) == 0)
+                {
+                    rawMan1 <<= 1;
+                    rawExp1--;
+                }
 
                 //Debug.Assert(rawMan1 >> MantissaBits == 1);
                 man1 = (long)(((ulong)rawMan1 ^ sign1) - sign1);
@@ -440,9 +424,12 @@ namespace SoftNumber
                     }
                 }
 
-                int shift = clz(rawMan2 & 0x00ffffff) - 8;
-                rawMan2 <<= shift;
-                rawExp2 = 1 - shift;
+                rawExp2 = 1;
+                while ((rawMan2 & 0x01000000) == 0)
+                {
+                    rawMan2 <<= 1;
+                    rawExp2--;
+                }
 
                 //Debug.Assert(rawMan2 >> MantissaBits == 1);
                 man2 = (long)(((ulong)rawMan2 ^ sign2) - sign2);
@@ -565,9 +552,12 @@ namespace SoftNumber
                     }
                 }
 
-                int shift = clz(rawMan1 & 0x00ffffff) - 8;
-                rawMan1 <<= shift;
-                rawExp1 = 1 - shift;
+                rawExp1 = 1;
+                while ((rawMan1 & 0x01000000) == 0)
+                {
+                    rawMan1 <<= 1;
+                    rawExp1--;
+                }
 
                 // Debug.Assert(rawMan1 >> MantissaBits == 1);
                 man1 = (long)(((ulong)rawMan1 ^ sign1) - sign1);
@@ -623,9 +613,12 @@ namespace SoftNumber
                     return new sdouble(((d1.rawValue ^ d2.rawValue) & SignMask) | RawPositiveInfinity);
                 }
 
-                int shift = clz(rawMan2 & 0x00ffffff) - 8;
-                rawMan2 <<= shift;
-                rawExp2 = 1 - shift;
+                rawExp2 = 1;
+                while ((rawMan2 & 0x01000000) == 0)
+                {
+                    rawMan2 <<= 1;
+                    rawExp2--;
+                }
 
                 // Debug.Assert(rawMan2 >> MantissaBits == 1);
                 man2 = (long)(((ulong)rawMan2 ^ sign2) - sign2);
@@ -790,7 +783,7 @@ namespace SoftNumber
         };
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int BitScanReverse8(long b) => msb[b];
+        private static int BitScanReverse11(ulong b) => msb[b];
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static unsafe ulong ReinterpretDoubleToUInt64(double d) => *(ulong*)&d;

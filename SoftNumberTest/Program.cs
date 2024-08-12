@@ -8,6 +8,8 @@ namespace SoftNumberTest
         {
             Tests_sfloat.RunAllTests();
             Tests_sdouble.RunAllTests();
+            
+            
         }
     }
 }
