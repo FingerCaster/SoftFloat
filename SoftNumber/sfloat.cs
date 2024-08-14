@@ -53,7 +53,7 @@ namespace SoftFloat
 
         public uint RawValue => rawValue;
 
-        private uint RawMantissa { get { return rawValue & 0x7FFFFF; } }
+        private uint RawMantissa => rawValue & 0x7FFFFF;
         private int Mantissa
         {
             get
@@ -249,13 +249,13 @@ namespace SoftFloat
                     return Zero;
                 }
 
-                uint b = absMan >> 23;
+                uint b = absMan >> MantissaBits;
                 int rawExp = rawExp1 - 6;
                 while (b == 0)
                 {
-                    rawExp -= 8;
-                    absMan <<= 8;
-                    b = absMan >> 23;
+                    rawExp -= ExponentBits;
+                    absMan <<= ExponentBits;
+                    b = absMan >> MantissaBits;
                 }
 
                 int msbIndex = BitScanReverse8(b);

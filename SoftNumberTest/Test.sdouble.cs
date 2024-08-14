@@ -364,19 +364,19 @@ namespace SoftNumberTest
         {
             const BinaryOperationType op = BinaryOperationType.Multiplication;
 
-            TestBinaryOperationDoubleExact(0.0, 0.0, 0.0, op);
-            TestBinaryOperationDoubleExact(1.0, 0.0, 0.0, op);
-            TestBinaryOperationDoubleExact(0.0, 1.0, 0.0, op);
+            TestBinaryOperationDoubleExact(0.0d, 0.0d, 0.0d, op);
+            TestBinaryOperationDoubleExact(1.0d, 0.0d, 0.0d, op);
+            TestBinaryOperationDoubleExact(0.0d, 1.0d, 0.0d, op);
 
-            TestBinaryOperationDoubleExact(-0.0, 0.0, 0.0, op);
-            TestBinaryOperationDoubleExact(-0.0, 0.0, -0.0, op);
-            TestBinaryOperationDoubleExact(0.0, 0.0, -0.0, op);
+            TestBinaryOperationDoubleExact(-0.0d, 0.0d, 0.0d, op);
+            TestBinaryOperationDoubleExact(-0.0d, 0.0d, -0.0d, op);
+            TestBinaryOperationDoubleExact(0.0d, 0.0d, -0.0d, op);
 
-            TestBinaryOperationDoubleExact(1.0, -1.0, -1.0, op);
-            TestBinaryOperationDoubleExact(-1.0, -1.0, 1.0, op);
+            TestBinaryOperationDoubleExact(1.0d, -1.0d, -1.0d, op);
+            TestBinaryOperationDoubleExact(-1.0d, -1.0d, 1.0d, op);
 
-            TestBinaryOperationDoubleApproximate(123.456, 456.789, 56393.34, op);
-            TestBinaryOperationDoubleApproximate(1e-40, 1e-42, 0.0, op);
+            TestBinaryOperationDoubleApproximate(123.456d, 456.789d, 56393.34d, op);
+            TestBinaryOperationDoubleApproximate(1e-80d, 1e-82d, 0.0d, op);
 
             TestBinaryOperationDoubleExact(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity, op);
             TestBinaryOperationDoubleExact(double.PositiveInfinity, double.NegativeInfinity, double.NegativeInfinity, op);
