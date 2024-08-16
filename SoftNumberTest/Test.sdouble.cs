@@ -375,7 +375,7 @@ namespace SoftNumberTest
             TestBinaryOperationDoubleExact(1.0d, -1.0d, -1.0d, op);
             TestBinaryOperationDoubleExact(-1.0d, -1.0d, 1.0d, op);
 
-            TestBinaryOperationDoubleApproximate(123.456d, 456.789d, 56393.34d, op);
+            TestBinaryOperationDoubleApproximate(123.456d, 456.789d, 56393.342784d, op);
             TestBinaryOperationDoubleApproximate(1e-80d, 1e-82d, 0.0d, op);
 
             TestBinaryOperationDoubleExact(double.PositiveInfinity, double.PositiveInfinity, double.PositiveInfinity, op);
@@ -406,8 +406,8 @@ namespace SoftNumberTest
             TestBinaryOperationDoubleExact(1.0, -1.0, -1.0, op);
             TestBinaryOperationDoubleExact(-1.0, -1.0, 1.0, op);
 
-            TestBinaryOperationDoubleApproximate(123.456, 456.789, 0.2702692, op);
-            TestBinaryOperationDoubleApproximate(1e-40, 1e-42, 99.94678, op);
+            TestBinaryOperationDoubleApproximate(123.456, 456.789, 0.27026920525669400970688873856419d, op);
+            TestBinaryOperationDoubleApproximate(1e-40, 1e-42, 99.99999999999999d, op);
 
             TestBinaryOperationDoubleExact(double.PositiveInfinity, double.PositiveInfinity, double.NaN, op);
             TestBinaryOperationDoubleExact(double.PositiveInfinity, double.NegativeInfinity, double.NaN, op);

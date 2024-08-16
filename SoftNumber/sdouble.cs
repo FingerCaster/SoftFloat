@@ -23,6 +23,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 
 namespace SoftFloat
@@ -60,12 +61,12 @@ namespace SoftFloat
             {
                 if (RawExponent != 0)
                 {
-                    ulong sign = rawValue >> 63;
+                    ulong sign = (ulong)((long)rawValue >> 63);
                     return (long)(((RawMantissa | 0x10000000000000) ^ sign) - sign);
                 }
                 else
                 {
-                    ulong sign = rawValue >> 63;
+                    ulong sign = (ulong)((long)rawValue >> 63);
                     return (long)(((RawMantissa) ^ sign) - sign);
                 }
             }
@@ -345,7 +346,7 @@ namespace SoftFloat
             else if (rawExp1 != 2047)
             {
                 // Norm
-                sign1 = d1.rawValue >> 63;
+                sign1 = (ulong)((long)d1.rawValue >> 63);
                 man1 = (long)(((d1.RawMantissa | 0x10000000000000) ^ sign1) - sign1);
             }
             else
@@ -407,7 +408,7 @@ namespace SoftFloat
             if (rawExp2 == 0)
             {
                 // SubNorm
-                sign2 = d2.rawValue >> 63;
+                sign2 = (ulong)((long)d2.rawValue >> 63);
                 long rawMan2 = (long)d2.RawMantissa;
                 if (rawMan2 == 0)
                 {
@@ -437,7 +438,7 @@ namespace SoftFloat
             else if (rawExp2 != 2047)
             {
                 // Norm
-                sign2 = d2.rawValue >> 63;
+                sign2 = (ulong)((long)d2.rawValue >> 63);
                 man2 = (long)(((d2.RawMantissa | 0x10000000000000) ^ sign2) - sign2);
             }
             else
@@ -487,13 +488,14 @@ namespace SoftFloat
                 }
             }
 
-            long longMan = (long)man1 * (long)man2;
-            int man = (int)(longMan >> MantissaBits);
+            
+            Int128 longMan = (Int128)man1 * man2;
+            long man = (long)(longMan >> MantissaBits);
             //Debug.Assert(man != 0);
             ulong absMan = (ulong)Math.Abs(man);
             int rawExp = rawExp1 + rawExp2 - ExponentBias;
             ulong sign = (ulong)man & 0x8000000000000000;
-            if ((absMan & 0x8000000000000000) != 0)
+            if ((absMan & 0x20000000000000) != 0)
             {
                 absMan >>= 1;
                 rawExp++;
@@ -536,7 +538,7 @@ namespace SoftFloat
             if (rawExp1 == 0)
             {
                 // SubNorm
-                sign1 = d1.rawValue >> 63;
+                sign1 = (ulong)((long)d1.rawValue >> 63);
                 long rawMan1 = (long)d1.RawMantissa;
                 if (rawMan1 == 0)
                 {
@@ -565,7 +567,7 @@ namespace SoftFloat
             else if (rawExp1 != 2047)
             {
                 // Norm
-                sign1 = d1.rawValue >> 63;
+                sign1 = (ulong)((long)d1.rawValue >> 63);
                 man1 = (long)(((d1.RawMantissa | 0x10000000000000) ^ sign1) - sign1);
             }
             else
@@ -605,7 +607,7 @@ namespace SoftFloat
             if (rawExp2 == 0)
             {
                 // SubNorm
-                sign2 = d2.rawValue >> 63;
+                sign2 = (ulong)((long)d2.rawValue >> 63);
                 long rawMan2 = (long)d2.RawMantissa;
                 if (rawMan2 == 0)
                 {
@@ -626,7 +628,7 @@ namespace SoftFloat
             else if (rawExp2 != 2047)
             {
                 // Norm
-                sign2 = d2.rawValue >> 63;
+                sign2 = (ulong)((long)d2.rawValue >> 63);
                 man2 = (long)(((d2.RawMantissa | 0x10000000000000) ^ sign2) - sign2);
             }
             else
@@ -675,8 +677,8 @@ namespace SoftFloat
                 }
             }
 
-            long longMan = ((long)man1 << MantissaBits) / (long)man2;
-            int man = (int)longMan;
+            Int128 longMan = ((Int128)man1 << MantissaBits) / (long)man2;
+            long man = (long)longMan;
             // Debug.Assert(man != 0);
             ulong absMan = (ulong)Math.Abs(man);
             int rawExp = rawExp1 - rawExp2 + ExponentBias;
@@ -878,10 +880,10 @@ namespace SoftFloat
                 return 0;
             }
 
-            ulong sign1 = rawValue >> 63;
+            ulong sign1 = (ulong)((long)rawValue >> 63);
             long val1 = (long)(((rawValue) ^ (sign1 & 0x7FFFFFFFFFFFFFFF)) - sign1);
 
-            ulong sign2 = other.rawValue >> 63;
+            ulong sign2 = (ulong)((long)other.rawValue >> 63);
             long val2 = (long)(((other.rawValue) ^ (sign2 & 0x7FFFFFFFFFFFFFFF)) - sign2);
             return val1.CompareTo(val2);
         }
